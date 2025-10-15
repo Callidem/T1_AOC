@@ -1,0 +1,35 @@
+# Loading project V1
+#  Trace back: ** Warning: (vmap-14) Failed to open "/home/bruno/OneDrive/Documentos/1_Ensino/Engenharia de computação/Semestre VII/Arquitetura e Organização de Computadores/T1/V1.mpf" specified by the MODELSIM environment variable.
+# No such file or directory. (errno = ENOENT)
+# ** Error: (vmap-7) Failed to open ini file "/home/bruno/OneDrive/Documentos/1_Ensino/Engenharia de computação/Semestre VII/Arquitetura e Organização de Computadores/T1/V1.mpf" in write mode.
+# No such file or directory. (errno = ENOENT)
+# child process exited abnormally
+#     while executing
+# "exec $vmap -quiet work $Project(CurProj_DefaultLib)"
+#     (procedure "Project::create" line 158)
+#     invoked from within
+# "Project::create $Project(dlg_proj_location) $Project(CurProj_NewName) $Project(dlg_proj_libname) $Project(dlg_initial_ini) $Project(dlg_ini_copy)"
+#     (procedure "Project::applyCreate" line 3)
+#     invoked from within
+# "Project::applyCreate .pcd"
+#     invoked from within
+# ".pcd.bb.button0 invoke"
+#     ("uplevel" body line 1)
+#     invoked from within
+# "uplevel #0 [list $w invoke]"
+#     (procedure "tk::ButtonUp" line 22)
+#     invoked from within
+# "tk::ButtonUp .pcd.bb.button0"
+#     (command bound to event)
+#    <2:/home/bruno/intelFPGA/20.1/modelsim_ase/linuxaloem/tk8.6/bgerror.tcl:106: ::tkerror {** Warning: (vmap-14) Failed to open "/home/bruno/OneDrive/Documentos/1_Ensino/Engenharia de computação/Semestre VII/Arquitetura e Organização de Computadores/T1/V1.mpf" specified by the MODELSIM environment variable.
+# No such file or directory. (errno = ENOENT)
+# ** Error: (vmap-7) Failed to open ini file "/home/bruno/OneDrive/Documentos/1_Ensino/Engenharia de computação/Semestre VII/Arquitetura e Organização de Computadores/T1/V1.mpf" in write mode.
+# No such file or directory. (errno = ENOENT)
+# child process exited abnormally}
+#    <1:/mtitcl/vsim/forms.tc_:1532: ::tk::dialog::error::bgerror {** Warning: (vmap-14) Failed to open "/home/bruno/OneDrive/Documentos/1_Ensino/Engenharia de computação/Semestre VII/Arquitetura e Organização de Computadores/T1/V1.mpf" specified by the MODELSIM environment variable.
+# No such file or directory. (errno = ENOENT)
+# ** Error: (vmap-7) Failed to open ini file "/home/bruno/OneDrive/Documentos/1_Ensino/Engenharia de computação/Semestre VII/Arquitetura e Organização de Computadores/T1/V1.mpf" in write mode.
+# No such file or directory. (errno = ENOENT)
+# child process exited abnormally}
+dataset reload -f
+# Dataset not found: 
