@@ -5,14 +5,23 @@
 
 ## Hierarquia
 ### Processador
-- Porta de endereço
-- Porta de controle
-- Porta de Status
-- Porta de dados ou instruções 
-- Envia sinais para L1
+- address out 32b
+- control out 1b
+- Status in 1b
+- data inout 32b
+- Envia sinais para L1 
 
 #### Cache L1
+- Processador
+    - data inout 32b
+    - address in 32b
+    - control in 1b
+    - status out 1b
 - Envia sinais para MP
+    - data inout 32b
+    - address out 32b
+    - control out 1b
+    - status in 1b
 - 8 linhas 8 palavras de 4 bytes
 
 #### FSM 
