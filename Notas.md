@@ -23,6 +23,12 @@
     - control out 1b
     - status in 1b
 - 8 linhas 8 palavras de 4 bytes
+- Mapeamento direto
+- Write-through
+- Mesma frequência do processador
+    - Acesso com 1 ciclo de relógio, borda invertida
+- MP com tempo de 16 ciclos
+
 
 #### FSM 
 - addLine, endereço da linha

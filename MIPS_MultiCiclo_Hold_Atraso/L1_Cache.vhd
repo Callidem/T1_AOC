@@ -1,3 +1,37 @@
+--------------------------------------------------------------------------
+-- M�dulo que implementa um modelo comportamental de uma Cache L1
+-- com interface ass�ncrona (sem clock)
+--------------------------------------------------------------------------
+library IEEE;
+use ieee.std_logic_1164.all;
+use ieee.STD_LOGIC_UNSIGNED.all;
+use std.textio.all;
+use work.aux_functions.all;
+
+entity L1_Cache is
+      generic(  START_ADDRESS: std_logic_vector(31 downto 0) := (others=>'0'),
+                ADDR_WIDTH  : integer := 32;
+                DATA_WIDTH  : integer := 32;
+                CACHE_LINE_SIZE_WORDS : integer := 4; -- n�mero de palavras por linha de cache
+                NUM_CACHE_LINES : integer := 16  -- n�mero de linhas na cache
+                );
+      port( --portas CPU-CACHE
+            clk, rst: in std_logic;
+            cpu_addr: in std_logic_vector(ADDR_WIDTH-1 downto 0);
+            cpu_data: inout std_logic_vector(DATA_WIDTH-1 downto 0);
+            cpu_write_en: in std_logic; -- '1' para escrita, '0' para leitura
+            cpu_bw: in std_logic_vector((DATA_WIDTH/8)-1 downto 0); -- byte write enable
+            cpu_hold: out std_logic; -- conectar a hold do MIPS_S
+            --portas CACHE-MP
+            mem_addr: out std_logic_vector(ADDR_WIDTH-1 downto 0);
+            mem_clk, mem_rst : in std_logic; -- (pode usar mesmo clk)
+            mem_data : inout std_logic_vector(DATA_WIDTH-1 downto 0);
+            mem_write_en, mem_read_en : out std_logic; -- we_n e oe_n na RAM
+            mem_status : in std_logic
+            );
+end L1_Cache;
+
+
 architecture Behavioral of L1_Cache is
 
     -- Calcular larguras dos campos
@@ -40,7 +74,7 @@ begin
     begin
         if rst = '1' then
             s_current_state <= IDLE;
-            cpu_stall <= '0';
+            cpu_hold <= '0';
             s_valid_bits <= (others => '0');
             -- Outras inicializações...
         elsif rising_edge(clk) then
@@ -50,7 +84,7 @@ begin
                 
                 -- Estado de espera
                 when IDLE =>
-                    cpu_stall <= '0';
+                    cpu_hold <= '0';
                     mem_read_en <= '0';
                     mem_write_en <= '0';
                     if cpu_write_en = '1' or (cpu_write_en = '0' and cpu_addr'event) then -- Requisição de leitura ou escrita
@@ -71,21 +105,21 @@ begin
                             v_cache_line := s_data_cache(v_index_int);
                             -- Seleciona a palavra correta com base no offset
                             -- Esta lógica precisa ser mais elaborada para selecionar a palavra certa
-                            -- cpu_data_out <= ... v_cache_line com s_offset ...;
+                            cpu_data <= v_cache_line(s_offset);
                             s_current_state <= IDLE;
                         else -- É uma escrita (Write Hit)
                             -- Atualizar a cache
-                            -- s_data_cache(v_index_int) <= ...; (atualiza a palavra certa)
+                            -- s_data_cache(v_index_int) <= ; (atualiza a palavra certa)
                             -- Iniciar escrita na memória principal (Write-Through)
                             mem_write_en <= '1';
                             mem_addr <= cpu_addr;
-                            mem_data_out <= cpu_data_in;
+                            mem_data <= cpu_data;
                             s_current_state <= MEM_WRITE;
                         end if;
                     else
                         -- MISS!
                         s_hit <= '0';
-                        cpu_stall <= '1'; -- Pausar a CPU
+                        cpu_hold <= '1'; -- Pausar a CPU
                         
                         -- Iniciar busca do bloco na memória principal
                         mem_read_en <= '1';
@@ -96,23 +130,23 @@ begin
 
                 -- Estado de busca na memória (após um Miss)
                 when MEM_READ_FETCH =>
-                    if mem_busy = '0' then
+                    if mem_status = '0' then
                         -- Memória entregou o dado. Escrevê-lo na cache.
                         v_index_int := to_integer(unsigned(s_index));
                         -- Assumindo que a memória entrega o bloco inteiro
-                        -- s_data_cache(v_index_int) <= mem_data_in; -- (requer uma interface de barramento)
+-------------------------- s_data_cache(v_index_int) <= mem_data; -- (requer uma interface de barramento)
                         s_tag_cache(v_index_int)   <= s_tag;
                         s_valid_bits(v_index_int)  <= '1';
                         
                         -- Libera a CPU e volta a comparar (agora será um hit)
-                        cpu_stall <= '0';
+                        cpu_hold <= '0';
                         mem_read_en <= '0';
                         s_current_state <= COMPARE; 
                     end if;
 
                 -- Estado de escrita na memória (após um Write Hit)
                 when MEM_WRITE =>
-                    if mem_busy = '0' then
+                    if mem_status = '0' then
                         mem_write_en <= '0';
                         s_current_state <= IDLE;
                     end if;
