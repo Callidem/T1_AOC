@@ -105,7 +105,7 @@ begin
                             v_cache_line := s_data_cache(v_index_int);
                             -- Seleciona a palavra correta com base no offset
                             -- Esta lógica precisa ser mais elaborada para selecionar a palavra certa
-                            cpu_data <= v_cache_line(s_offset);
+                            cpu_data <= ... v_cache_line com s_offset ...;
                             s_current_state <= IDLE;
                         else -- É uma escrita (Write Hit)
                             -- Atualizar a cache
