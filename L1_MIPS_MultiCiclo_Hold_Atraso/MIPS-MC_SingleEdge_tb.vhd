@@ -17,6 +17,24 @@
 --      sinal ce para a mem�ria o que acabava preenchendo a mem�ria de dados 
 --      com lixo ao mesmo tempo. Para resolver isto, a gera��o do sinal de 
 --      controle Dce da mem�ria de dados foi mudada de 
+--
+--  TESTBENCH DO PROCESSADOR MIPS_S (LITTLE ENDIAN) 13/10/2004
+--
+-- Observe-se que o processador come�a sendo ressetado por este testbench
+-- (rstCPU <= '1') no in�cio da simula��o, sendo ativado  -- (rstCPU <= '0')
+-- somente depois do fim da leitura do arquiv contendo o c�digo objeto do
+-- programa e executar, bem como seus dados iniciais.
+--
+-- Este testbench emprega duas mem�rias, implicando uma organiza��o HARVARD
+-- para o processador
+--
+-- Mudan�as:
+--	16/05/2012 (Ney Calazans)
+--		- Bug corrigido no processo de preenchimento da mem�ria durante o reset.
+--		Anteriormente, o processo fazia o processador produzir habilita��es no 
+--      sinal ce para a mem�ria o que acabava preenchendo a mem�ria de dados 
+--      com lixo ao mesmo tempo. Para resolver isto, a gera��o do sinal de 
+--      controle Dce da mem�ria de dados foi mudada de 
 --			--	ce='1' or go_d='1'	 
 --          para 
 --			-- (ce='1' and rstCPU/='1') or go_d='1'
@@ -38,9 +56,9 @@
 --		  CONV_INTEGER(low_address+3)<=MEMORY_SIZE 
 --        foi mudado para
 --		  CONV_INTEGER(low_address)<=MEMORY_SIZE-3
--- 		Isto evita um erro que congelava a simula��o quando a
---		   ALU continnha um n�mero grande (>65533) na sua sa�da 
---		   imediatamente antes de uma instru��o LW o SW.
+-- 	Isto evita um erro que congelava a simula��o quando a
+-- 	   ALU continnha um n�mero grande (>65533) na sua sa�da 
+-- 	   imediatamente antes de uma instru��o LW o SW.
 -------------------------------------------------------------------------
 
 library IEEE;
@@ -53,15 +71,15 @@ package aux_functions is
 	subtype wires8   is std_logic_vector( 7 downto 0);
 	subtype wires4   is std_logic_vector( 3 downto 0);
 
-   -- defini��o do tipo 'memory', que ser� utilizado para as mem�rias de dados/instru��es
-   constant MEMORY_SIZE : integer := 2048;     
-   type memory is array (0 to MEMORY_SIZE) of wires8;
+    -- defini��o do tipo 'memory', que ser� utilizado para as mem�rias de dados/instru��es
+    constant MEMORY_SIZE : integer := 2048;     
+    type memory is array (0 to MEMORY_SIZE) of wires8;
 
-   constant TAM_LINHA : integer := 200;
+    constant TAM_LINHA : integer := 200;
    
-   function CONV_VECTOR( letra : string(1 to TAM_LINHA);  pos: integer ) return std_logic_vector;
-	
-	procedure readFileLine(file in_file: TEXT; outStrLine: out string);
+    function CONV_VECTOR( letra : string(1 to TAM_LINHA);  pos: integer ) return std_logic_vector;
+    
+     procedure readFileLine(file in_file: TEXT; outStrLine: out string);
    
 end aux_functions;
 
@@ -71,39 +89,39 @@ package body aux_functions is
   -- converte um caracter de uma dada linha em um std_logic_vector
   --
   function CONV_VECTOR( letra:string(1 to TAM_LINHA);  pos: integer ) return std_logic_vector is         
-     variable bin: wires4;
-   begin
-      case (letra(pos)) is  
-              when '0' => bin := "0000";
-              when '1' => bin := "0001";
-              when '2' => bin := "0010";
-              when '3' => bin := "0011";
-              when '4' => bin := "0100";
-              when '5' => bin := "0101";
-              when '6' => bin := "0110";
-              when '7' => bin := "0111";
-              when '8' => bin := "1000";
-              when '9' => bin := "1001";
-              when 'A' | 'a' => bin := "1010";
-              when 'B' | 'b' => bin := "1011";
-              when 'C' | 'c' => bin := "1100";
-              when 'D' | 'd' => bin := "1101";
-              when 'E' | 'e' => bin := "1110";
-              when 'F' | 'f' => bin := "1111";
-              when others =>  bin := "0000";  
-      end case;
-     return bin;
+      variable bin: wires4;
+    begin
+        case (letra(pos)) is  
+                  when '0' => bin := "0000";
+                  when '1' => bin := "0001";
+                  when '2' => bin := "0010";
+                  when '3' => bin := "0011";
+                  when '4' => bin := "0100";
+                  when '5' => bin := "0101";
+                  when '6' => bin := "0110";
+                  when '7' => bin := "0111";
+                  when '8' => bin := "1000";
+                  when '9' => bin := "1001";
+                  when 'A' | 'a' => bin := "1010";
+                  when 'B' | 'b' => bin := "1011";
+                  when 'C' | 'c' => bin := "1100";
+                  when 'D' | 'd' => bin := "1101";
+                  when 'E' | 'e' => bin := "1110";
+                  when 'F' | 'f' => bin := "1111";
+                  when others =>  bin := "0000";  
+        end case;
+      return bin;
   end CONV_VECTOR;
 
   procedure readFileLine(file in_file: TEXT; 
-					      outStrLine: out string) is
+ 				      outStrLine: out string) is
+
+	variable localLine: line;
+	variable localChar:  character;
+	variable isString: 	boolean;
 		
-		variable localLine: line;
-		variable localChar:  character;
-		variable isString: 	boolean;
-			
 	begin
-				
+			
 		 readline(in_file, localLine);
 
 		 for i in outStrLine'range loop
@@ -117,7 +135,7 @@ package body aux_functions is
 				exit;
 			end if;   
 		 end loop; 
-						 
+ 					 
 	end readFileLine;
 	
 end aux_functions;     
@@ -133,50 +151,50 @@ use std.textio.all;
 use work.aux_functions.all;
 
 entity RAM_mem is
-      generic(  START_ADDRESS: wires32 := (others=>'0')  );
-      port( ce_n, we_n, oe_n, bw: in std_logic;    address: in wires32;   data: inout wires32);
+        generic(  START_ADDRESS: wires32 := (others=>'0')  );
+        port( ce_n, we_n, oe_n, bw: in std_logic;    address: in wires32;   data: inout wires32);
 end RAM_mem;
 
 architecture RAM_mem of RAM_mem is 
-   signal RAM : memory;
-   signal tmp_address: wires32;
-   alias  low_address: wires16 is tmp_address(15 downto 0);    --  baixa para 16 bits, devido ao CONV_INTEGER --
+    signal RAM : memory;
+    signal tmp_address: wires32;
+    alias  low_address: wires16 is tmp_address(15 downto 0);    --  baixa para 16 bits, devido ao CONV_INTEGER --
 begin     
 
-   tmp_address <= address - START_ADDRESS;   --  offset do enderecamento  -- 
+    tmp_address <= address - START_ADDRESS;   --  offset do enderecamento  -- 
    
-   -- escrita ass�ncrona na mem�ria  -- LITTLE ENDIAN -------------------
-   process(ce_n, we_n, low_address) -- Modifica��o em 16/05/2012 para uso
-                                    -- processadores monociclo apenas
-     begin
-       if ce_n='0' and we_n='0' then
-          if CONV_INTEGER(low_address)>=0 and CONV_INTEGER(low_address)<=MEMORY_SIZE-3 then
-               if bw='1' then
-                   RAM(CONV_INTEGER(low_address+3)) <= data(31 downto 24);
-                   RAM(CONV_INTEGER(low_address+2)) <= data(23 downto 16);
-                   RAM(CONV_INTEGER(low_address+1)) <= data(15 downto  8);
-               end if;
-               RAM(CONV_INTEGER(low_address  )) <= data( 7 downto  0); 
-          end if;
-         end if;   
-    end process;   
+    -- escrita ass�ncrona na mem�ria  -- LITTLE ENDIAN -------------------
+    process(ce_n, we_n, low_address) -- Modifica��o em 16/05/2012 para uso
+                                                -- processadores monociclo apenas
+      begin
+         if ce_n='0' and we_n='0' then
+             if CONV_INTEGER(low_address)>=0 and CONV_INTEGER(low_address)<=MEMORY_SIZE-3 then
+                    if bw='1' then
+                         RAM(CONV_INTEGER(low_address+3)) <= data(31 downto 24);
+                         RAM(CONV_INTEGER(low_address+2)) <= data(23 downto 16);
+                         RAM(CONV_INTEGER(low_address+1)) <= data(15 downto  8);
+                    end if;
+                    RAM(CONV_INTEGER(low_address  )) <= data( 7 downto  0); 
+             end if;
+            end if;   
+     end process;   
     
-   -- leitura da mem�ria
-   process(ce_n, oe_n, low_address)
-     begin
-       if ce_n='0' and oe_n='0' and
-          CONV_INTEGER(low_address)>=0 and CONV_INTEGER(low_address)<=MEMORY_SIZE-3 then
-            data(31 downto 24) <= RAM(CONV_INTEGER(low_address+3));
-            data(23 downto 16) <= RAM(CONV_INTEGER(low_address+2));
-            data(15 downto  8) <= RAM(CONV_INTEGER(low_address+1));
-            data( 7 downto  0) <= RAM(CONV_INTEGER(low_address  ));
-        else
-            data(31 downto 24) <= (others=>'Z');
-            data(23 downto 16) <= (others=>'Z');
-            data(15 downto  8) <= (others=>'Z');
-            data( 7 downto  0) <= (others=>'Z');
-        end if;
-   end process;   
+    -- leitura da mem�ria
+    process(ce_n, oe_n, low_address)
+      begin
+         if ce_n='0' and oe_n='0' and
+             CONV_INTEGER(low_address)>=0 and CONV_INTEGER(low_address)<=MEMORY_SIZE-3 then
+                data(31 downto 24) <= RAM(CONV_INTEGER(low_address+3));
+                data(23 downto 16) <= RAM(CONV_INTEGER(low_address+2));
+                data(15 downto  8) <= RAM(CONV_INTEGER(low_address+1));
+                data( 7 downto  0) <= RAM(CONV_INTEGER(low_address  ));
+          else
+                data(31 downto 24) <= (others=>'Z');
+                data(23 downto 16) <= (others=>'Z');
+                data(15 downto  8) <= (others=>'Z');
+                data( 7 downto  0) <= (others=>'Z');
+          end if;
+    end process;   
 
 end RAM_mem;
 
@@ -191,45 +209,25 @@ use work.aux_functions.all;
 
 entity CPU_tb is
 end CPU_tb;
-
-architecture cpu_tb of cpu_tb is
-    
-    signal Dadress, Ddata, Iadress, Idata,
-           i_cpu_address, d_cpu_address, data_cpu, tb_add, tb_data : wires32 := (others => '0' );
-    
-    signal Dce_n, Dwe_n, Doe_n, Ice_n, Iwe_n, Ioe_n, ck, rst, rstCPU, hold,
-           go_i, go_d, ce, rw, bw: std_logic;
-		   
-    signal readInst: std_logic;
-    
-    file ARQ : TEXT open READ_MODE is "Test_Program_Allinst_MIPS_MCS.txt";
- 
-begin
-           
-    Data_mem:  entity work.RAM_mem 
-               generic map( START_ADDRESS => x"10010000" )
-               port map (ce_n=>Dce_n, we_n=>Dwe_n, oe_n=>Doe_n, bw=>bw, address=>Dadress, data=>Ddata);
-                                            
-    Instr_mem: entity work.RAM_mem 
                generic map( START_ADDRESS => x"00400000" )
                port map (ce_n=>Ice_n, we_n=>Iwe_n, oe_n=>Ioe_n, bw=>'1', address=>Iadress, data=>Idata);
         
     process(rst, ck)
-		variable em_count: std_logic;
-		variable count: integer;
+        variable em_count: std_logic;
+        variable count: integer;
     begin
-		if rst = '1' then
-			hold <= '0';
-			em_count := '0';
+        if rst = '1' then
+            proc_hold <= '0';
+            em_count := '0';
         elsif ck'event and ck = '0' then
             if readInst = '1' then
                 if em_count = '0' then
                     count := 0;
-                    hold <= '1';
+                    proc_hold <= '1';
                     em_count := '1';
                 else
                     if count = 15 then
-                       hold <= '0';
+                       proc_hold <= '0';
                        em_count := '0';
                     else
                        count := count + 1;
@@ -238,16 +236,21 @@ begin
              end if;
         end if; 
     end process;
+
+    -- combine loader/CPU hold with cache hold: final hold seen by CPU
+    hold <= proc_hold or cache_hold;
                                    
     -- sinais para adaptar a mem�ria de dados ao processador ---------------------------------------------
-    Dce_n <= '0' when (ce='1' and rstCPU/='1') or go_d='1' else '1'; -- Bug corrected here in 16/05/2012
-    Doe_n <= '0' when (ce='1' and rw='1')             else '1';       
-    Dwe_n <= '0' when (ce='1' and rw='0') or go_d='1' else '1';    
+    -- During reset/load (go_d) the loader has priority. During normal operation the cache controls RAM.
+    Dce_n <= '0' when ( (cache_mem_read_en = '1' or cache_mem_write_en = '1') and rstCPU='0') or go_d='1' else '1';
+    Doe_n <= '0' when (cache_mem_read_en = '1') else '1';
+    Dwe_n <= '0' when (cache_mem_write_en = '1' or go_d='1') else '1';
 
     Dadress <= tb_add  when rstCPU='1' else d_cpu_address;
-    Ddata   <= tb_data when rstCPU='1' else data_cpu when (ce='1' and rw='0') else (others=>'Z'); 
-    
-    data_cpu <= Ddata when (ce='1' and rw='1') else (others=>'Z');
+    -- Ddata is driven by loader during reset; otherwise by cache when it performs writes.
+    Ddata   <= tb_data when rstCPU='1' else cache_mem_data when cache_mem_write_en = '1' else (others=>'Z');
+
+    -- CPU read data comes from the cache (cache drives data_cpu on read-hits). Do not directly tie data_cpu to Ddata.
     
     -- sinais para adaptar a mem�ria de instru��es ao processador ---------------------------------------------
     
@@ -270,12 +273,51 @@ begin
 		data => data_cpu
 	); 
 
+    ------------------------------------------------------------------
+    -- Instantiate L1 Cache (connect between CPU and Data RAM)
+    ------------------------------------------------------------------
+    cache_inst: entity work.L1_Cache
+        port map(
+            clk => ck,
+            rst => rstCPU,
+            cpu_ce => ce,
+            cpu_addr => d_cpu_address,
+            cpu_data => data_cpu,
+            cpu_rw => rw,
+            cpu_bw => bw,
+            cpu_hold => cache_hold,
+            hit_count_out => cache_hit_count,
+            miss_count_out => cache_miss_count,
+            stall_cycles_out => cache_stall_cycles,
+            mem_addr => cache_mem_addr,
+            mem_clk => ck,
+            mem_rst => rstCPU,
+            mem_data => cache_mem_data,
+            mem_write_en => cache_mem_write_en,
+            mem_read_en => cache_mem_read_en,
+            mem_status => cache_mem_status
+        );
+
     rst <='1', '0' after 15 ns;       -- gera o sinal de reset global 
 
     process                          -- gera o clock global 
         begin
         ck <= '1', '0' after 10 ns;
         wait for 20 ns;
+    end process;
+
+    ------------------------------------------------------------------
+    -- Print cache instrumentation after a longer run (useful to collect stats)
+    ------------------------------------------------------------------
+    process
+    begin
+        -- wait sufficiently long for the program to execute; adjust as needed
+        wait for 500000 ns;
+        report "=== L1 Cache statistics ===";
+        report "Cache hits: " & integer'image(cache_hit_count);
+        report "Cache misses: " & integer'image(cache_miss_count);
+        report "Cache stall cycles: " & integer'image(cache_stall_cycles);
+        wait;
     end process;
 
     
@@ -306,18 +348,18 @@ begin
         variable i, address_flag : integer;
     begin  
         go_i <= '0';
-        go_d <= '0';
+                tb_hold_instr <= '0';
         rstCPU <= '1';           -- segura o processador durante a leitura do arquivo
         code:=true;              -- valor default de code � true (leitura de instru��es)
                                  
-        wait until rst = '1';
-        
-        while NOT (endfile(ARQ)) loop    -- INCIO DA LEITURA DO ARQUIVO CONTENDO INSTRU��ES E DADOS -----
-            readFileLine(ARQ, line_arq);            
-            if line_arq(1 to 12)="Text Segment" then 
-                   code:=true;                     -- instru��es 
-            elsif line_arq(1 to 12)="Data Segment" then
-                   code:=false;                    -- dados
+     wait until rst = '1';
+
+     while NOT (endfile(ARQ)) loop    -- INCIO DA LEITURA DO ARQUIVO CONTENDO INSTRU��ES E DADOS -----
+         readFileLine(ARQ, line_arq);            
+         if line_arq(1 to 12)="Text Segment" then 
+             code:=true;                     -- instru��es 
+         elsif line_arq(1 to 12)="Data Segment" then
+             code:=false;                    -- dados
             else 
                i := 1;                  -- LEITURA DE LINHA - analisar o la�o abaixo para entender 
                address_flag := 0;       -- para INSTRU��ES  um par (end,inst)
