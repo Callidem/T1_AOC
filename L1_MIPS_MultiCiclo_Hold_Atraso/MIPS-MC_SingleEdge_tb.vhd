@@ -209,11 +209,33 @@ use work.aux_functions.all;
 
 entity CPU_tb is
 end CPU_tb;
+
+architecture cpu_tb of cpu_tb is
+    
+    signal Dadress, Ddata, Iadress, Idata,
+           i_cpu_address, d_cpu_address, data_cpu, tb_add, tb_data, cache_mem_data, cache_mem_addr : wires32 := (others => '0' );
+    
+    signal Dce_n, Dwe_n, Doe_n, Ice_n, Iwe_n, Ioe_n, ck, rst, rstCPU, hold,
+           go_i, go_d, ce, rw, bw, proc_hold, cache_hold, cache_mem_write_en, cache_mem_read_en, cache_mem_status : std_logic;
+		   
+    signal readInst: std_logic;
+    signal cache_hit_count, cache_miss_count, cache_stall_cycles: integer;
+    
+    
+    file ARQ : TEXT open READ_MODE is "Test_Program_Allinst_MIPS_MCS.txt";
+ 
+begin
+           
+    Data_mem:  entity work.RAM_mem 
+               generic map( START_ADDRESS => x"10010000" )
+               port map (ce_n=>Dce_n, we_n=>Dwe_n, oe_n=>Doe_n, bw=>bw, address=>Dadress, data=>Ddata);
+                                            
+    Instr_mem: entity work.RAM_mem 
                generic map( START_ADDRESS => x"00400000" )
                port map (ce_n=>Ice_n, we_n=>Iwe_n, oe_n=>Ioe_n, bw=>'1', address=>Iadress, data=>Idata);
         
     process(rst, ck)
-        variable em_count: std_logic;
+        variable em_count:   std_logic;
         variable count: integer;
     begin
         if rst = '1' then
@@ -348,7 +370,6 @@ end CPU_tb;
         variable i, address_flag : integer;
     begin  
         go_i <= '0';
-                tb_hold_instr <= '0';
         rstCPU <= '1';           -- segura o processador durante a leitura do arquivo
         code:=true;              -- valor default de code � true (leitura de instru��es)
                                  

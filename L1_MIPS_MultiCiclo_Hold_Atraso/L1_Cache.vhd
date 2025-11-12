@@ -67,7 +67,8 @@ architecture Behavioral of L1_Cache is
     signal s_current_state : T_STATE := IDLE;
     
     signal s_hit : std_logic;
-
+    signal cpu_hold_o, mem_write_en_o : std_logic;
+    signal mem_addr_o : std_logic_vector(ADDR_WIDTH-1 downto 0) := (others=>'0');
     -- internal default outputs
     signal s_cpu_data_drive : std_logic_vector(DATA_WIDTH-1 downto 0) := (others=>'0');
     signal s_cpu_drive_en : std_logic := '0';
@@ -122,7 +123,7 @@ begin
     begin
         if rst = '1' then
             s_current_state <= IDLE;
-            cpu_hold <= '0';
+            cpu_hold_o <= '0';
             s_valid_bits <= (others => '0');
             -- Outras inicializações...
             s_cpu_drive_en <= '0';
@@ -133,7 +134,7 @@ begin
         elsif rising_edge(clk) then
 
             -- contar ciclos de stall
-            if cpu_hold = '1' then
+            if cpu_hold_o = '1' then
                 s_stall_cycles <= s_stall_cycles + 1;
             end if;
 
@@ -142,9 +143,9 @@ begin
                 
                 -- Estado de espera
                 when IDLE =>
-                    cpu_hold <= '0';
+                    cpu_hold_o <= '0';
                     mem_read_en <= '0';
-                    mem_write_en <= '0';
+                    mem_write_en_o <= '0';
                     s_cpu_drive_en <= '0';
                     -- Detectar requisição da CPU: quando cpu_ce='1' (uins.ce) há uma operação
                     if cpu_ce = '1' then
@@ -190,15 +191,15 @@ begin
                             v_cache_line(v_hi downto v_lo) := v_word_new;
                             s_data_cache(v_index_int) <= v_cache_line;
                             -- Iniciar escrita na memória principal (Write-Through)
-                            mem_write_en <= '1';
-                            mem_addr <= cpu_addr;
+                            mem_write_en_o <= '1';
+                            mem_addr_o <= cpu_addr;
                                 s_mem_data_drive <= cpu_data;
                             s_current_state <= MEM_WRITE;
                         end if;
                     else
                         -- MISS!
                         s_hit <= '0';
-                        cpu_hold <= '1'; -- Pausar a CPU
+                        cpu_hold_o <= '1'; -- Pausar a CPU
                             s_miss_count <= s_miss_count + 1;
 
                         -- preparar base do bloco (offset de palavra + byte = 0)
@@ -214,7 +215,7 @@ begin
                         end if;
 
                         -- iniciar leitura sequencial da primeira palavra do bloco
-                        mem_addr <= s_fetch_base;
+                        mem_addr_o <= s_fetch_base;
                         mem_read_en <= '1';
                         s_current_state <= MEM_READ_FETCH;
                     end if;
@@ -237,10 +238,10 @@ begin
                         if s_fetch_idx < CACHE_LINE_SIZE_WORDS - 1 then
                             s_fetch_idx <= s_fetch_idx + 1;
                             -- avançar endereço de leitura em 4 bytes (próxima palavra)
-                            if bits_are_valid(mem_addr) then
-                                mem_addr <= std_logic_vector(unsigned(mem_addr) + 4);
+                            if bits_are_valid(mem_addr_o) then
+                                mem_addr_o <= std_logic_vector(unsigned(mem_addr_o) + 4);
                             else
-                                mem_addr <= (others => '0');
+                                mem_addr_o <= (others => '0');
                             end if;
                             mem_read_en <= '1'; -- manter leitura
                             s_current_state <= MEM_READ_FETCH;
@@ -267,14 +268,14 @@ begin
                                 v_cache_line(v_hi downto v_lo) := v_word_new;
                                 s_data_cache(v_index_int) <= v_cache_line;
                                 -- iniciar escrita write-through para a palavra solicitada
-                                mem_write_en <= '1';
-                                mem_addr <= s_pending_addr;
+                                mem_write_en_o <= '1';
+                                mem_addr_o <= s_pending_addr;
                                 s_mem_data_drive <= s_pending_data;
                                 s_pending_write <= '0';
                                 s_current_state <= MEM_WRITE;
                             else
                                 -- sem escrita pendente: libera CPU
-                                cpu_hold <= '0';
+                                cpu_hold_o <= '0';
                                 s_current_state <= COMPARE;
                             end if;
                         end if;
@@ -283,14 +284,17 @@ begin
                 -- Estado de escrita na memória (após um Write Hit)
                 when MEM_WRITE =>
                     if mem_status = '0' then
-                        mem_write_en <= '0';
+                        mem_write_en_o <= '0';
                         s_current_state <= IDLE;
                     end if;
 
             end case;
         end if;
     end process;
-    
+
+    cpu_hold <= cpu_hold_o;
+    mem_write_en <= mem_write_en_o;
+    mem_addr <= mem_addr_o;
     -- Lógica combinacional para leitura da cache (exemplo simplificado)
     -- A leitura real acontece no ciclo de hit dentro do processo
     -- cpu_data_out <= ...;
@@ -298,8 +302,8 @@ begin
     -- Tri-state driver para o barramento CPU: drive quando habilitado por uma leitura hit
     cpu_data <= s_cpu_data_drive when s_cpu_drive_en = '1' else (others => 'Z');
 
-    -- Tri-state driver para o barramento memória: somente dirigir mem_data quando mem_write_en ativo
-    mem_data <= s_mem_data_drive when mem_write_en = '1' else (others => 'Z');
+    -- Tri-state driver para o barramento memória: somente dirigir mem_data quando mem_write_en_o ativo
+    mem_data <= s_mem_data_drive when mem_write_en_o = '1' else (others => 'Z');
 
     -- drive instrumentation outputs
     hit_count_out <= s_hit_count;
