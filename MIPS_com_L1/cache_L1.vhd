@@ -25,12 +25,16 @@ entity cache is
 
       port( data_io:   inout std_logic_vector(31 downto 0); -- dado a ser ecrito ou a ser enviado
             addr_i:    in    std_logic_vector(31 downto 0); -- endereco do dado
-            control_i: in    std_logic; -- 1 write 0 read
+            ce_i:      in    std_logic; -- chip enable
+            we_i:      in    std_logic; -- write enable
+            oe_i:      in    std_logic; -- read enable
+            hold:      in    std_logic;
             clk:       in    std_logic;
             rst:       in    std_logic;
-            ce_i:      in    std_logic;
-            ce_o:      out   std_logic;
-            status_o:  out   std_logic); -- se operacao esta em andamento TODO
+            -- fio para comunicacao com a proxima memoria
+            addr_o:    in    std_logic_vector(31 downto 0); -- endereco do dado
+            ce_o:      out   std_logic; -- chip enable proxima memoria
+            ); -- 1 out esta pronto, 0 em operacao
 end;
 
 architecture cache of cache is
@@ -38,50 +42,85 @@ architecture cache of cache is
   type cache_state is (idle, read, write, cache_miss);
   type cache_memory is array(0 to num_lines) of std_logic_vector(line_size downto 0);
 
-  signal memory: cache_memory;
-  signal state:  cache_state;
-  signal tag:    integer;
-  signal bloco:  integer;
-  signal linha:  integer;
+  signal memory:  cache_memory;
+  signal state:   cache_state;
+  signal tag:     integer;
+  signal bloco:   integer;
+  signal linha:   integer;
+  signal aux:     integer; -- ate agr so ultilizado no cache miss para count do bloco
+
+  signal control: std_logic;
 
 begin
 
-  tag   <= to_integer(unsigned(addr_i(31 downto 6)));
-  bloco <= to_integer(unsigned(addr_i(5 downto 3)));
-  linha <= to_integer(unsigned(addr_i(2 downto 0)));
+  -- transforma em int para usar em index
+  tag     <= to_integer(unsigned(addr_i(31 downto 6)));
+  bloco   <= to_integer(unsigned(addr_i(5 downto 3)));
+  linha   <= to_integer(unsigned(addr_i(2 downto 0)));
+
+  ce      <= hold and ce_i; -- TODO n sei se tem q ta em zero essa porra AAAAAAAAA
 
   fsm: process(clk, rst)
   begin
     if rst then
+      state    <= idle;
+      status_o <= '0';
+      aux      <=  0;
+
       for i in 0 to num_lines loop
-            cache_memory(i)(line_size) <= '0';
+            cache_memory(i)(line_size) <= '0'; -- zera bit de validade
       end loop;
-      status_o < '0';
+
       -- falta coisa ainda
 
     else
 
-      case state is
-        when idle =>
-          if ce_i = '1' and control_i = '1' then -- TODO cipa tem q mudar o control ver modulo do processador pra isso
-            state <= write;
-          end if;
+      if ce then -- se ce_i e hold liberarem ele vai
+        case state is
+          when idle =>
+            status_o <= '1';
+            if we_n = '0' then -- fonte ram mips.... linha 152
+              state <= write;
+            end if;
 
-          if ce_i = '1' and control_i = '0' then -- TODO cipa tem q mudar o control
-            state <= read;
-          end if;
+            if oe_n = '0' then -- fonte ram mips.... linha 167
+              state <= read;
+            end if;
 
-        when read =>
-          if tag /= memory(linha)(31 downto 6) then -- compara tag, caso cache miss
-            state <= cache_miss;
-          end if;
+          when read =>
+            status_o <= '0';
 
-        when write =>
+            if tag /= memory(linha)(31 downto 6) and memory(linha)(line_size) then -- compara tag, e se memoria for valida, caso cache miss
+              state <= cache_miss;
+            else
+              data_io <= cache_memory(linha)(bloco);
+            end if;
 
-        when cache_miss =>
+          when write =>
+            status_o <= '0';
 
-      end case;
+            if tag /= memory(linha)(31 downto 6) and memory(linha)(line_size) then -- compara tag, e se memoria for valida, caso cache miss
+              state <= cache_miss;
+            end if;
 
+          when cache_miss =>
+            if aux = 7 then
+              if we_n = '0' then -- fonte ram mips.... linha 152
+                state <= write;
+              end if;
+
+              if oe_n = '0' then -- fonte ram mips.... linha 167
+                state <= read;
+              end if;
+            end if;
+
+            addr_o(31 downto 3) <= addr_i(31 downto 3);
+            addr_o(2 downto 0)  := std_logic_vector(to_unsigned(aux)); -- fiz sequencial pra tentar n explodir TODO
+            aux := aux + 1;
+
+        end case;
+
+      end if;
     end if;
   end process fsm;
 
