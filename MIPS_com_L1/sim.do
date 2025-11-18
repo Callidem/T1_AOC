@@ -3,6 +3,7 @@ vlib work
 vmap work work
 
 vcom mult_div.vhd
+vcom cache_L1.vhd
 vcom MIPS-MC_SingleEdge.vhd
 vcom MIPS-MC_SingleEdge_tb.vhd
 
