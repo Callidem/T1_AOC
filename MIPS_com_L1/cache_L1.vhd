@@ -71,7 +71,7 @@ begin
   bloco   <= CONV_INTEGER(addr_i(5 downto 3));
   linha   <= CONV_INTEGER(addr_i(2 downto 0));
 
-  ce      <= hold and ce_i; -- TODO n sei se tem q ta em zero essa porra AAAAAAAAA
+  ce      <= hold_i and ce_i; -- TODO n sei se tem q ta em zero essa porra AAAAAAAAA
 
   fsm: process(clk, rst)
   begin
@@ -124,7 +124,7 @@ begin
             end if;
 
             addr_o(31 downto 3) <= addr_i(31 downto 3);
-            addr_o(2 downto 0)  <= std_logic_vector(CONV_INTEGER(aux)); -- TODO
+            -- addr_o(2 downto 0)  <= std_logic_vector(aux)); -- TODO
             aux <= aux + 1;
 
         end case;
