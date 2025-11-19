@@ -1,0 +1,15 @@
+ Address    Code        Basic                     Source
+
+0x00400000  0x3c011001  lui $1,0x00001001     7        lw $t0, array_size       # Tamanho do array
+0x00400004  0x8c280100  lw $8,0x00000100($1)       
+0x00400008  0x3c011001  lui $1,0x00001001     8        la $s0, large_array      # Base do array
+0x0040000c  0x34300000  ori $16,$1,0x00000000      
+0x00400010  0x24090000  addiu $9,$0,0x000000009        li $t1, 0                # Índice
+0x00400014  0x00095080  sll $10,$9,0x00000002 12       sll $t2, $t1, 2          # Calcula offset (i * 4)
+0x00400018  0x020a5820  add $11,$16,$10       13       add $t3, $s0, $t2        # Endereço atual
+0x0040001c  0x8d6c0000  lw $12,0x00000000($11)14       lw $t4, 0($t3)           # Acesso sequencial
+0x00400020  0x21290001  addi $9,$9,0x00000001 16       addi $t1, $t1, 1         # Próxima palavra (Stride=1)
+0x00400024  0x0128082a  slt $1,$9,$8          17       blt $t1, $t0, spatial_loop
+0x00400028  0x1420fffa  bne $1,$0,0xfffffffa       
+0x0040002c  0x2402000a  addiu $2,$0,0x0000000a19       li $v0, 10               # Exit
+0x00400030  0x0000000c  syscall               20       syscall
