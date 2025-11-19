@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------
--- TODO logo se considerara borda de descida muahahaha
+-- 
 --
 -- formato do enderecamento:
 --         26(31..6) bits       3(5..3) 3(2..0)
@@ -18,7 +18,7 @@ entity cache is
       generic(WORD: integer := 32; 
               BLOCK_SIZE: integer := 8;
               NUM_LINES: integer := 8;
-              LINE_SIZE: integer := 1+26+32*8-1
+              LINE_SIZE: integer := 1+26+32*8
              );
       -- calculo do tamanho da linha (bit_de_validade + tag + tamanho_da_palavra*BLOCK_SIZE - 1)
 
@@ -42,7 +42,7 @@ end;
 
 architecture cache of cache is
 
-  type cache_state is (idle, read, write, cache_miss);
+  type cache_state is (IDLE, READ, WRITE, CACHE_MISS);
   type cache_memory is array(0 to NUM_LINES-1) of std_logic_vector(LINE_SIZE-1 downto 0);
 
   signal memory:     cache_memory;
@@ -69,49 +69,54 @@ begin
   fsm: process(clk, rst)
   begin
     if rst = '1' then
-      state <= idle;
+      state <= IDLE;
       aux   <= "000";
       oe_o  <= '1';
       we_o  <= '1';
 
-      for i in 0 to NUM_LINES loop
-            memory(i)(LINE_SIZE) <= '0'; -- zera bit de validade
-      end loop;
+      memory(0)(LINE_SIZE - 1) <= '0'; -- zera bit de validade
+      memory(1)(LINE_SIZE - 1) <= '0';
+      memory(2)(LINE_SIZE - 1) <= '0';
+      memory(3)(LINE_SIZE - 1) <= '0';
+      memory(4)(LINE_SIZE - 1) <= '0';
+      memory(5)(LINE_SIZE - 1) <= '0';
+      memory(6)(LINE_SIZE - 1) <= '0';
+      memory(7)(LINE_SIZE - 1) <= '0';
 
-    elsif clk'event and clk = '0' then -- TODO reverificar pq na cpu n ta assim
+    else
 
       if ce = '0' then
         case state is
-          when idle =>
+          when IDLE =>
             oe_o  <= '1';
-            we_o  <= '1'; -- por causa do write through
+            we_o  <= '1'; -- por causa do WRITE through
 
             if we_i = '0' then -- fonte ram mips.... linha 152
-              state <= write;
+              state <= WRITE;
             end if;
 
             if oe_i = '0' then -- fonte ram mips.... linha 167
-              state <= read;
+              state <= READ;
             end if;
 
-          when read =>
+          when READ =>
 
-            if (tag /= memory(linha)(31 downto 6)) and (memory(linha)(LINE_SIZE) = '1') then -- compara tag, e se memoria for valida, caso cache miss
-              state <= cache_miss;
+            if (tag /= memory(linha)(31 downto 6)) and (memory(linha)(LINE_SIZE - 1) = '1') then -- compara tag, e se memoria for valida, caso cache miss
+              state <= CACHE_MISS;
             else
               data_io <= memory(linha)((bloco + 1)*32 -1 downto bloco * 32);
             end if;
 
-          when write =>
+          when WRITE =>
 
-            if (tag /= memory(linha)(31 downto 6)) and (memory(linha)(LINE_SIZE) = '1') then -- compara tag, e se memoria for valida, caso cache miss
-              state <= cache_miss;
+            if (tag /= memory(linha)(31 downto 6)) and (memory(linha)(LINE_SIZE - 1) = '1') then -- compara tag, e se memoria for valida, caso cache miss
+              state <= CACHE_MISS;
             else
               memory(linha)((bloco + 1)*32 -1 downto (bloco * 32)) <= data_io ;
-              we_o <= '0'; -- write through
+              we_o <= '0'; -- WRITE through
             end if;
 
-          when cache_miss =>
+          when CACHE_MISS =>
             oe_o <= '0';
             memory(linha)((bloco + 1)*32 -1 downto (bloco * 32)) <= data_io ;
 
@@ -119,11 +124,11 @@ begin
               memory(linha)(LINE_SIZE) <= '1'; -- seta bit de validade
 
               if we_i = '0' then -- fonte ram mips.... linha 152
-                state <= write;
+                state <= WRITE;
               end if;
 
               if oe_i = '0' then -- fonte ram mips.... linha 167
-                state <= read;
+                state <= READ;
               end if;
             else
               aux <= aux + 1;
