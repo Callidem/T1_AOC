@@ -1,0 +1,98 @@
+do sim.do
+# Error 133: Unable to remove directory "C:/Users/bruno/OneDrive/Documentos/1_Ensino/Engenharia_de_computacao/Semestre_VII/Arquitetura_e_Organizacao_de_Computadores/T1_AOC/OG_MIPS_MultiCiclo_Hold_Atraso/work".
+# Model Technology ModelSim - Intel FPGA Edition vmap 2020.1 Lib Mapping Utility 2020.02 Feb 28 2020
+# vmap work work 
+# Modifying C:/Users/bruno/OneDrive/Documentos/1_Ensino/Engenharia_de_computacao/Semestre_VII/Arquitetura_e_Organizacao_de_Computadores/T1_AOC/OG_MIPS_MultiCiclo_Hold_Atraso/OG_NO_CACHE.mpf
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 23:33:05 on Nov 18,2025
+# vcom -reportprogress 300 mult_div.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package std_logic_arith
+# -- Loading package STD_LOGIC_UNSIGNED
+# -- Compiling entity multiplica
+# -- Compiling architecture multiplica of multiplica
+# -- Compiling entity divide
+# -- Compiling architecture divide of divide
+# End time: 23:33:05 on Nov 18,2025, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 23:33:05 on Nov 18,2025
+# vcom -reportprogress 300 MIPS-MC_SingleEdge.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling package p_MIPS_S
+# -- Compiling entity reg32bit
+# -- Compiling architecture reg32bit of reg32bit
+# -- Loading package std_logic_arith
+# -- Loading package STD_LOGIC_UNSIGNED
+# -- Loading package p_MIPS_S
+# -- Compiling entity reg_bank
+# -- Compiling architecture reg_bank of reg_bank
+# -- Loading entity reg32bit
+# -- Compiling entity alu
+# -- Compiling architecture alu of alu
+# -- Loading package STD_LOGIC_SIGNED
+# -- Compiling entity datapath
+# -- Compiling architecture datapath of datapath
+# -- Loading entity reg_bank
+# -- Loading entity alu
+# -- Loading entity multiplica
+# -- Loading entity divide
+# -- Compiling entity control_unit
+# -- Compiling architecture control_unit of control_unit
+# -- Compiling entity MIPS_S
+# -- Compiling architecture MIPS_S of MIPS_S
+# -- Loading entity datapath
+# -- Loading entity control_unit
+# End time: 23:33:06 on Nov 18,2025, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 23:33:06 on Nov 18,2025
+# vcom -reportprogress 300 MIPS-MC_SingleEdge_tb.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling package aux_functions
+# -- Compiling package body aux_functions
+# -- Loading package aux_functions
+# -- Loading package std_logic_arith
+# -- Loading package STD_LOGIC_UNSIGNED
+# -- Loading package aux_functions
+# -- Compiling entity RAM_mem
+# -- Compiling architecture RAM_mem of RAM_mem
+# -- Compiling entity CPU_tb
+# -- Compiling architecture cpu_tb of cpu_tb
+# -- Loading entity RAM_mem
+# -- Loading package p_MIPS_S
+# -- Loading entity MIPS_S
+# End time: 23:33:06 on Nov 18,2025, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vsim -voptargs="+acc=lprn" -t ps work.CPU_tb 
+# Start time: 23:33:06 on Nov 18,2025
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading ieee.std_logic_arith(body)
+# Loading ieee.std_logic_unsigned(body)
+# Loading work.aux_functions(body)
+# Loading work.p_mips_s
+# Loading work.cpu_tb(cpu_tb)
+# Loading work.ram_mem(ram_mem)
+# Loading ieee.std_logic_signed(body)
+# Loading work.mips_s(mips_s)
+# Loading work.datapath(datapath)
+# Loading work.reg_bank(reg_bank)
+# Loading work.reg32bit(reg32bit)
+# Loading work.alu(alu)
+# Loading work.multiplica(multiplica)
+# Loading work.divide(divide)
+# Loading work.control_unit(control_unit)
+# 1
+# 1
+# ** Error: ******************* INVALID INSTRUCTION *************
+#    Time: 0 ps  Iteration: 1  Instance: /cpu_tb/cpu/ct
+examine -radix hex /cpu_tb/cpu/ct/PC
+# 0040011C
