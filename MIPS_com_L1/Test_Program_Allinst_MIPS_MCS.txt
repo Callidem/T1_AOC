@@ -66,6 +66,7 @@ Text Segment
 0x00400100  0x8fbf0000  lw $31,0x00000000($29)84   	lw	$ra,0($sp)			# ao retornar, recupera endereco de retorno da pilha
 0x00400104  0x27bd0004  addiu $29,$29,0x00000085   	addiu	$sp,$sp,4		# atualiza apontador de pilha
 0x00400108  0x03e00008  jr $31                86   end:	jr	$ra				# FIM DO PROGRAMA AQUI. volta para o "sistema operacional" 
+0x10000000  0x00008093
 0x0040010c  0x3c011001  lui $1,0x00001001     88   sum_tst:la	$t0,var_a	# pega endereco da primeira variavel (pseudo-instrucao)
 0x00400110  0x34280028  ori $8,$1,0x00000028       
 0x00400114  0x8d080000  lw $8,0x00000000($8)  89   	lw	$t0,0($t0)			# toma o valor de var_a e coloca em $t0

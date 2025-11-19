@@ -101,7 +101,7 @@ begin
 
           when READ =>
 
-            if (tag /= memory(linha)(31 downto 6)) and (memory(linha)(LINE_SIZE - 1) = '1') then -- compara tag, e se memoria for valida, caso cache miss
+            if (tag /= memory(linha)(281 downto 256)) and (memory(linha)(LINE_SIZE - 1) = '1') then -- compara tag, e se memoria for valida, caso cache miss
               state <= CACHE_MISS;
             else
               data_io <= memory(linha)((bloco + 1)*32 -1 downto bloco * 32);
@@ -109,7 +109,7 @@ begin
 
           when WRITE =>
 
-            if (tag /= memory(linha)(31 downto 6)) and (memory(linha)(LINE_SIZE - 1) = '1') then -- compara tag, e se memoria for valida, caso cache miss
+            if (tag /= memory(linha)(281 downto 256)) and (memory(linha)(LINE_SIZE - 1) = '1') then
               state <= CACHE_MISS;
             else
               memory(linha)((bloco + 1)*32 -1 downto (bloco * 32)) <= data_io ;
@@ -117,11 +117,12 @@ begin
             end if;
 
           when CACHE_MISS =>
+            ce_o <= '0';
             oe_o <= '0';
             memory(linha)((bloco + 1)*32 -1 downto (bloco * 32)) <= data_io ;
 
             if aux = 7 then
-              memory(linha)(LINE_SIZE) <= '1'; -- seta bit de validade
+              memory(linha)(LINE_SIZE - 1) <= '1'; -- seta bit de validade
 
               if we_i = '0' then -- fonte ram mips.... linha 152
                 state <= WRITE;

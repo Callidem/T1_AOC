@@ -233,6 +233,7 @@ begin
     Instr_mem: entity work.RAM_mem 
                generic map( START_ADDRESS => x"00400000" )
                port map (ce_n=>Ice_n, we_n=>Iwe_n, oe_n=>Ioe_n, bw=>'1', address=>Iadress, data=>Idata, clk=>ck, hold=>Ihold);
+              
         
     process(rst, ck)
 		variable em_count: std_logic;
@@ -264,6 +265,9 @@ begin
     Cce_n <= '0' when (ce='1' and rstCPU/='1') or go_d='1' else '1'; -- Bug corrected here in 16/05/2012
     Coe_n <= '0' when (ce='1' and rw='1')             else '1';
     Cwe_n <= '0' when (ce='1' and rw='0') or go_d='1' else '1';
+
+    Cadress <= tb_add  when rstCPU='1' else d_cpu_address;
+    Ddata   <= tb_data when rstCPU='1' else data_cpu when (ce='1' and rw='0') else (others=>'Z'); 
 
     data_cpu <= Ddata when (ce='1' and rw='1') else (others=>'Z');
     
