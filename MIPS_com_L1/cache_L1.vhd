@@ -1,15 +1,5 @@
 -------------------------------------------------------------------------
---
---
---considerando hold e quando e 1 pra segurar e o resto e borda de descida pq fds
-
---ajeitar todos os acesos a memory pq bloco downto bloco -32
-
---falta todo o write tbm;
-
---cache miss falta:
---write da intrucao e bit de validade
---
+-- TODO logo se considerara borda de descida muahahaha
 --
 -- formato do enderecamento:
 --         26(31..6) bits       3(5..3) 3(2..0)
@@ -47,7 +37,7 @@ entity cache is
             oe_o:      out   std_logic; -- read enable proxima memoria
             we_o:      out   std_logic  -- write enable proxima memoria
 
-            ); -- 1 out esta pronto, 0 em operacao
+          ); -- 1 out esta pronto, 0 em operacao
 end;
 
 architecture cache of cache is
@@ -55,12 +45,12 @@ architecture cache of cache is
   type cache_state is (idle, read, write, cache_miss);
   type cache_memory is array(0 to NUM_LINES-1) of std_logic_vector(LINE_SIZE-1 downto 0);
 
-  signal memory:  cache_memory;
-  signal state:   cache_state;
-  signal tag:     integer;
-  signal bloco:   integer;
-  signal linha:   integer;
-  signal aux:     integer; -- ate agr so ultilizado no cache miss para count do bloco
+  signal memory:     cache_memory;
+  signal state:      cache_state;
+  signal tag:        integer;
+  signal bloco:      integer;
+  signal linha:      integer;
+  signal aux:        std_logic_vector(2 downto 0); -- ate agr so ultilizado no cache miss para count do bloco
 
   signal ce: std_logic;
 
@@ -71,25 +61,31 @@ begin
   bloco   <= CONV_INTEGER(addr_i(5 downto 3));
   linha   <= CONV_INTEGER(addr_i(2 downto 0));
 
-  ce      <= hold_i and ce_i; -- TODO n sei se tem q ta em zero essa porra AAAAAAAAA
+  ce      <= ce_i;
 
+  
+
+  -- process(ce_n, we_n, low_address) TODO
   fsm: process(clk, rst)
   begin
     if rst = '1' then
-      state    <= idle;
-      aux      <=  0;
+      state <= idle;
+      aux   <= "000";
+      oe_o  <= '1';
+      we_o  <= '1';
 
       for i in 0 to NUM_LINES loop
             memory(i)(LINE_SIZE) <= '0'; -- zera bit de validade
       end loop;
 
-      -- falta coisa ainda
+    elsif clk'event and clk = '0' then -- TODO reverificar pq na cpu n ta assim
 
-    else
-
-      if ce = '1' then -- se ce_i e hold liberarem ele vai TODO
+      if ce = '0' then
         case state is
           when idle =>
+            oe_o  <= '1';
+            we_o  <= '1'; -- por causa do write through
+
             if we_i = '0' then -- fonte ram mips.... linha 152
               state <= write;
             end if;
@@ -110,10 +106,18 @@ begin
 
             if (tag /= memory(linha)(31 downto 6)) and (memory(linha)(LINE_SIZE) = '1') then -- compara tag, e se memoria for valida, caso cache miss
               state <= cache_miss;
+            else
+              memory(linha)((bloco + 1)*32 -1 downto (bloco * 32)) <= data_io ;
+              we_o <= '0'; -- write through
             end if;
 
           when cache_miss =>
+            oe_o <= '0';
+            memory(linha)((bloco + 1)*32 -1 downto (bloco * 32)) <= data_io ;
+
             if aux = 7 then
+              memory(linha)(LINE_SIZE) <= '1'; -- seta bit de validade
+
               if we_i = '0' then -- fonte ram mips.... linha 152
                 state <= write;
               end if;
@@ -121,11 +125,12 @@ begin
               if oe_i = '0' then -- fonte ram mips.... linha 167
                 state <= read;
               end if;
+            else
+              aux <= aux + 1;
+              addr_o(31 downto 3) <= addr_i(31 downto 3);
+              addr_o(2 downto 0)  <= aux;
             end if;
 
-            addr_o(31 downto 3) <= addr_i(31 downto 3);
-            -- addr_o(2 downto 0)  <= std_logic_vector(aux)); -- TODO
-            aux <= aux + 1;
 
         end case;
 
