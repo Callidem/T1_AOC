@@ -1,0 +1,26 @@
+ Address    Code        Basic                     Source
+
+0x00400000  0x3c011001  lui $1,0x00001001     25       lw $t0, loop_count
+0x00400004  0x8c2807e4  lw $8,0x000007e4($1)       
+0x00400008  0x24090000  addiu $9,$0,0x0000000026       li $t1, 0
+0x0040000c  0x3c011001  lui $1,0x00001001     30       lw $t2, conflict_addr0   # Mesma linha cache (256 bytes apart)
+0x00400010  0x8c2a0000  lw $10,0x00000000($1)      
+0x00400014  0x3c011001  lui $1,0x00001001     31       lw $t3, conflict_addr1   # Conflict miss!
+0x00400018  0x8c2b00fc  lw $11,0x000000fc($1)      
+0x0040001c  0x3c011001  lui $1,0x00001001     32       lw $t4, conflict_addr2   # Conflict miss!
+0x00400020  0x8c2c01f8  lw $12,0x000001f8($1)      
+0x00400024  0x3c011001  lui $1,0x00001001     33       lw $t5, conflict_addr3   # Conflict miss!
+0x00400028  0x8c2d02f4  lw $13,0x000002f4($1)      
+0x0040002c  0x3c011001  lui $1,0x00001001     34       lw $t6, conflict_addr4   # Conflict miss!
+0x00400030  0x8c2e03f0  lw $14,0x000003f0($1)      
+0x00400034  0x3c011001  lui $1,0x00001001     35       lw $t7, conflict_addr5   # Conflict miss!
+0x00400038  0x8c2f04ec  lw $15,0x000004ec($1)      
+0x0040003c  0x3c011001  lui $1,0x00001001     36       lw $t8, conflict_addr6   # Conflict miss!
+0x00400040  0x8c3805e8  lw $24,0x000005e8($1)      
+0x00400044  0x3c011001  lui $1,0x00001001     37       lw $t9, conflict_addr7   # Conflict miss!
+0x00400048  0x8c3906e4  lw $25,0x000006e4($1)      
+0x0040004c  0x21290001  addi $9,$9,0x00000001 39       addi $t1, $t1, 1
+0x00400050  0x0128082a  slt $1,$9,$8          40       blt $t1, $t0, conflict_loop
+0x00400054  0x1420ffed  bne $1,$0,0xffffffed       
+0x00400058  0x2402000a  addiu $2,$0,0x0000000a42       li $v0, 10
+0x0040005c  0x0000000c  syscall               43       syscall

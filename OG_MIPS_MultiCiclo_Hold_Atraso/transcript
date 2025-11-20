@@ -96,3 +96,5 @@ do sim.do
 #    Time: 0 ps  Iteration: 1  Instance: /cpu_tb/cpu/ct
 examine -radix hex /cpu_tb/cpu/ct/PC
 # 0040011C
+# End time: 21:11:36 on Nov 19,2025, Elapsed time: 21:38:30
+# Errors: 1, Warnings: 4

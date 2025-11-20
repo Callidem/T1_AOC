@@ -1,0 +1,22 @@
+ Address    Code        Basic                     Source
+
+0x00400000  0x3c011001  lui $1,0x00001001     7        la $s0, big_array
+0x00400004  0x34300000  ori $16,$1,0x00000000      
+0x00400008  0x3c011001  lui $1,0x00001001     8        lw $t0, re_read_size
+0x0040000c  0x8c280140  lw $8,0x00000140($1)       
+0x00400010  0x24090000  addiu $9,$0,0x0000000011       li $t1, 0
+0x00400014  0x00095080  sll $10,$9,0x00000002 13       sll $t2, $t1, 2
+0x00400018  0x020a5820  add $11,$16,$10       14       add $t3, $s0, $t2
+0x0040001c  0xad690000  sw $9,0x00000000($11) 15       sw $t1, 0($t3)           # Escreve valor
+0x00400020  0x21290001  addi $9,$9,0x00000001 16       addi $t1, $t1, 1
+0x00400024  0x29210050  slti $1,$9,0x00000050 17       blt $t1, 80, first_pass   # 80 palavras
+0x00400028  0x1420fffa  bne $1,$0,0xfffffffa       
+0x0040002c  0x24090000  addiu $9,$0,0x0000000020       li $t1, 0
+0x00400030  0x00095080  sll $10,$9,0x00000002 22       sll $t2, $t1, 2
+0x00400034  0x020a5820  add $11,$16,$10       23       add $t3, $s0, $t2
+0x00400038  0x8d6c0000  lw $12,0x00000000($11)24       lw $t4, 0($t3)           # Miss por capacidade!
+0x0040003c  0x21290001  addi $9,$9,0x00000001 25       addi $t1, $t1, 1
+0x00400040  0x0128082a  slt $1,$9,$8          26       blt $t1, $t0, second_pass
+0x00400044  0x1420fffa  bne $1,$0,0xfffffffa       
+0x00400048  0x2402000a  addiu $2,$0,0x0000000a28       li $v0, 10
+0x0040004c  0x0000000c  syscall               29       syscall
