@@ -26,9 +26,9 @@ Vll[@8eYin:4ZVIfD@4CC10
 !s100 3DcE77C9S=h3MRXSRgXEi0
 Z9 OV;C;2020.1;71
 33
-Z10 !s110 1763606821
+Z10 !s110 1763608126
 !i10b 1
-Z11 !s108 1763606821.000000
+Z11 !s108 1763608125.000000
 Z12 !s90 -reportprogress|300|-2008|MIPS-MC_SingleEdge.vhd|
 Z13 !s107 MIPS-MC_SingleEdge.vhd|
 !i113 1
@@ -61,7 +61,7 @@ Paux_functions
 R5
 R6
 !i122 3
-Z18 w1763519097
+Z18 w1763608066
 R0
 Z19 8MIPS-MC_SingleEdge_tb.vhd
 Z20 FMIPS-MC_SingleEdge_tb.vhd
@@ -74,14 +74,14 @@ R9
 b1
 R10
 !i10b 1
-R11
-Z21 !s90 -reportprogress|300|-2008|MIPS-MC_SingleEdge_tb.vhd|
+Z21 !s108 1763608126.000000
+Z22 !s90 -reportprogress|300|-2008|MIPS-MC_SingleEdge_tb.vhd|
 !s107 MIPS-MC_SingleEdge_tb.vhd|
 !i113 1
 R14
 R15
 Bbody
-Z22 DPx4 work 13 aux_functions 0 22 LY8d<Y@jIjaFNm1K?eU^c3
+Z23 DPx4 work 13 aux_functions 0 22 LY8d<Y@jIjaFNm1K?eU^c3
 R5
 R6
 !i122 3
@@ -93,9 +93,9 @@ R9
 33
 R10
 !i10b 1
-R11
 R21
-Z23 !s107 MIPS-MC_SingleEdge_tb.vhd|
+R22
+Z24 !s107 MIPS-MC_SingleEdge_tb.vhd|
 !i113 1
 R14
 R15
@@ -125,13 +125,13 @@ R13
 R14
 R15
 Acontrol_unit
-Z24 DEx4 work 8 reg32bit 0 22 lY>b9`9@<nXc4UaQXkgNF1
+Z25 DEx4 work 8 reg32bit 0 22 lY>b9`9@<nXc4UaQXkgNF1
 R2
 R3
 R4
 R5
 R6
-Z25 DEx4 work 12 control_unit 0 22 W`X:PczAnZg;Df?E9<`h`3
+Z26 DEx4 work 12 control_unit 0 22 W`X:PczAnZg;Df?E9<`h`3
 !i122 1
 l457
 L451 190
@@ -149,7 +149,7 @@ R14
 R15
 Ecpu_tb
 R18
-R22
+R23
 R3
 R4
 R5
@@ -166,19 +166,19 @@ R9
 33
 R10
 !i10b 1
-R11
 R21
-R23
+R22
+R24
 !i113 1
 R14
 R15
 Acpu_tb
-Z26 DPx4 ieee 11 numeric_std 0 22 aU^R8eGcicLcUFIaBQSL>3
-Z27 DEx4 work 8 l1_cache 0 22 >5HPZ<5G=BndoQVhB9?^23
+Z27 DPx4 ieee 11 numeric_std 0 22 aU^R8eGcicLcUFIaBQSL>3
+Z28 DEx4 work 8 l1_cache 0 22 >5HPZ<5G=BndoQVhB9?^23
 R2
-Z28 DEx4 work 6 mips_s 0 22 @60PJ:g_j7`Png;6h`o_20
-Z29 DEx4 work 7 ram_mem 0 22 XYRL_10a]1BM0SHCOE?iL1
-R22
+Z29 DEx4 work 6 mips_s 0 22 @60PJ:g_j7`Png;6h`o_20
+Z30 DEx4 work 7 ram_mem 0 22 XYRL_10a]1BM0SHCOE?iL1
+R23
 R3
 R4
 R5
@@ -186,16 +186,16 @@ R6
 DEx4 work 6 cpu_tb 0 22 ]iobmY<Soh:;6D?8gXUl=0
 !i122 3
 l227
-L213 225
-VQ0f[1;5ca]4j:[mR9]SBm3
-!s100 =1EGh0aLzKKBc?@JK;GTC0
+L213 223
+VnPd_NHWCo9HPP_8<CXfa23
+!s100 JnI`SYiF44zzkmER>`hHM3
 R9
 33
 R10
 !i10b 1
-R11
 R21
-R23
+R22
+R24
 !i113 1
 R14
 R15
@@ -225,18 +225,18 @@ R13
 R14
 R15
 Adatapath
-Z30 DEx4 work 6 divide 0 22 G_RQjX3_KZi?2Ukdm^FH93
-Z31 DEx4 work 10 multiplica 0 22 1d`JXP^0K0_E^f0`[7N^B1
+Z31 DEx4 work 6 divide 0 22 G_RQjX3_KZi?2Ukdm^FH93
+Z32 DEx4 work 10 multiplica 0 22 1d`JXP^0K0_E^f0`[7N^B1
 R17
-R24
+R25
 R4
-Z32 DEx4 work 8 reg_bank 0 22 80OknbiOlS]@5XhOnU20Z0
+Z33 DEx4 work 8 reg_bank 0 22 80OknbiOlS]@5XhOnU20Z0
 R2
 R3
 R16
 R5
 R6
-Z33 DEx4 work 8 datapath 0 22 hLeVDSLU2]hOoJO1S[HVW2
+Z34 DEx4 work 8 datapath 0 22 hLeVDSLU2]hOoJO1S[HVW2
 !i122 1
 l283
 L275 149
@@ -260,19 +260,19 @@ R5
 R6
 !i122 0
 R0
-Z34 8mult_div.vhd
-Z35 Fmult_div.vhd
+Z35 8mult_div.vhd
+Z36 Fmult_div.vhd
 l0
 L119 1
 VG_RQjX3_KZi?2Ukdm^FH93
 !s100 IdObz37^Dh[EXMBn8VEAR2
 R9
 33
-R10
+Z37 !s110 1763608125
 !i10b 1
 R11
-Z36 !s90 -reportprogress|300|-2008|mult_div.vhd|
-Z37 !s107 mult_div.vhd|
+Z38 !s90 -reportprogress|300|-2008|mult_div.vhd|
+Z39 !s107 mult_div.vhd|
 !i113 1
 R14
 R15
@@ -281,7 +281,7 @@ R3
 R4
 R5
 R6
-R30
+R31
 !i122 0
 l138
 L129 82
@@ -289,23 +289,23 @@ VX:kEN<C8O3I4]C2XlCU2k2
 !s100 j1=jgZ;dm>U1dnJK68n7V1
 R9
 33
-R10
+R37
 !i10b 1
 R11
-R36
-R37
+R38
+R39
 !i113 1
 R14
 R15
 El1_cache
-Z38 w1763606813
-R26
+Z40 w1763607777
+R27
 R5
 R6
 !i122 2
 R0
-Z39 8L1_Cache.vhd
-Z40 FL1_Cache.vhd
+Z41 8L1_Cache.vhd
+Z42 FL1_Cache.vhd
 l0
 L9 1
 V>5HPZ<5G=BndoQVhB9?^23
@@ -314,29 +314,29 @@ R9
 33
 R10
 !i10b 1
-R11
-Z41 !s90 -reportprogress|300|-2008|L1_Cache.vhd|
-Z42 !s107 L1_Cache.vhd|
+R21
+Z43 !s90 -reportprogress|300|-2008|L1_Cache.vhd|
+Z44 !s107 L1_Cache.vhd|
 !i113 1
 R14
 R15
 Abehavioral
-R26
+R27
 R5
 R6
-R27
+R28
 !i122 2
-l93
-L38 215
-V;Nc:0bGfS>@[R5bD[YR4b2
-!s100 k6SoE3=DF2;=mhEFf<KS<2
+l91
+L38 212
+VEXRY3JA<giHESm3RFiR@M2
+!s100 IMhLP?UN:7UR_[i8>VZjI3
 R9
 33
 R10
 !i10b 1
-R11
-R41
-R42
+R21
+R43
+R44
 !i113 1
 R14
 R15
@@ -365,14 +365,14 @@ R14
 R15
 Amips_s
 R4
-R25
+R26
 R3
 R16
-R33
+R34
 R2
 R5
 R6
-R28
+R29
 !i122 1
 l669
 L665 24
@@ -396,19 +396,19 @@ R5
 R6
 !i122 0
 R0
-R34
 R35
+R36
 l0
 L31 1
 V1d`JXP^0K0_E^f0`[7N^B1
 !s100 _:i=>N>=oEETzQZ4558Mi2
 R9
 33
-R10
+R37
 !i10b 1
 R11
-R36
-R37
+R38
+R39
 !i113 1
 R14
 R15
@@ -417,7 +417,7 @@ R3
 R4
 R5
 R6
-R31
+R32
 !i122 0
 l49
 L40 71
@@ -425,11 +425,11 @@ VLE;XkElHTW_2zeJMC:5`j3
 !s100 PRO4;ZeWPSJVhbIYWh?lo1
 R9
 33
-R10
+R37
 !i10b 1
 R11
-R36
-R37
+R38
+R39
 !i113 1
 R14
 R15
@@ -457,7 +457,7 @@ R14
 R15
 Eram_mem
 R18
-R22
+R23
 R3
 R4
 R5
@@ -474,19 +474,19 @@ R9
 33
 R10
 !i10b 1
-R11
 R21
-R23
+R22
+R24
 !i113 1
 R14
 R15
 Aram_mem
-R22
+R23
 R3
 R4
 R5
 R6
-R29
+R30
 !i122 3
 l162
 L158 42
@@ -496,9 +496,9 @@ R9
 33
 R10
 !i10b 1
-R11
 R21
-R23
+R22
+R24
 !i113 1
 R14
 R15
@@ -527,7 +527,7 @@ R15
 Areg32bit
 R5
 R6
-R24
+R25
 !i122 1
 l115
 L114 14
@@ -569,13 +569,13 @@ R13
 R14
 R15
 Areg_bank
-R24
+R25
 R2
 R3
 R4
 R5
 R6
-R32
+R33
 !i122 1
 l158
 L154 36

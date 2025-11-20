@@ -15,11 +15,11 @@ entity L1_Cache is
             );
     port( --portas CPU-CACHE
         clk, rst: in std_logic;
-        cpu_ce: in std_logic; -- chip enable from CPU (uins.ce)
+        cpu_ce: in std_logic; -- chip enable da cpu
         cpu_addr: in std_logic_vector(ADDR_WIDTH-1 downto 0);
         cpu_data: inout std_logic_vector(DATA_WIDTH-1 downto 0);
         cpu_rw: in std_logic; -- '1' = read, '0' = write (match MIPS_S uins.rw)
-        cpu_bw: in std_logic; -- byte write enable: '1' = full-word write, '0' = byte write (matches testbench RAM semantics)
+        cpu_bw: in std_logic; -- byte write enable: '1' = full-word write, '0' = byte write de acordo com a RAM
         cpu_hold: out std_logic; -- conectar a hold do MIPS_S
         -- instrumentation outputs
         hit_count_out : out integer := 0;
@@ -37,10 +37,8 @@ end L1_Cache;
 
 architecture Behavioral of L1_Cache is
 
-    -- Simplified direct-mapped cache parameters
     constant BYTE_OFFSET_BITS : integer := 2; -- byte offset inside word
 
-    -- integer ceiling of log2 (small helper used for static constants)
     function clog2(n: integer) return integer is
         variable k: integer := 0;
         variable v: integer := 1;
@@ -84,19 +82,19 @@ architecture Behavioral of L1_Cache is
     signal s_hit_count : integer := 0;
     signal s_miss_count : integer := 0;
     signal s_stall_cycles : integer := 0;
-    -- pending write signals for simple write-allocate
+    -- sinais para escrita pendente quando write-miss
     signal s_pending_write : std_logic := '0';
     signal s_pending_data  : std_logic_vector(DATA_WIDTH-1 downto 0) := (others => '0');
     signal s_pending_addr  : std_logic_vector(ADDR_WIDTH-1 downto 0) := (others => '0');
     signal s_pending_bw    : std_logic := '1';
 
 begin
-    -- Decomposição do endereço (lógica combinacional)
+    -- Decomposição do endereço
     s_tag    <= cpu_addr(ADDR_WIDTH-1 downto ADDR_WIDTH - TAG_BITS);
     s_index  <= cpu_addr(ADDR_WIDTH - TAG_BITS - 1 downto BYTE_OFFSET_BITS + OFFSET_WORD_BITS);
     s_word_offset <= cpu_addr(BYTE_OFFSET_BITS + OFFSET_WORD_BITS - 1 downto BYTE_OFFSET_BITS);
 
-    -- Main simplified FSM
+    -- FSM 
     process(clk, rst)
         variable v_idx : integer := 0;
         variable v_word_idx : integer := 0;
@@ -114,7 +112,7 @@ begin
             mem_write_en_o <= '0';
             mem_addr_o <= (others => '0');
             s_fetch_idx <= 0;
-            -- clear pending write on reset
+            -- limpar escrita pendente no reset
             s_pending_write <= '0';
             s_pending_data  <= (others => '0');
             s_pending_addr  <= (others => '0');
@@ -124,7 +122,6 @@ begin
                 s_stall_cycles <= s_stall_cycles + 1;
             end if;
 
-            -- defaults
             s_cpu_drive_en <= '0';
             mem_read_en_o <= '0';
             mem_write_en_o <= '0';
@@ -147,12 +144,12 @@ begin
                             s_cpu_data_drive <= s_data_cache(v_idx)(v_word_idx);
                             s_cpu_drive_en <= '1';
                             s_current_state <= IDLE;
-                        else -- write hit: update cache and write-through
+                        else -- write hit: atualizar cache e fazer write-through
                             v_word_idx := to_integer(unsigned(s_word_offset));
                             if cpu_bw = '1' then
                                 s_data_cache(v_idx)(v_word_idx) <= cpu_data;
                             else
-                                -- only update LSB byte
+                                -- atualizar somente o byte correspondente
                                 s_data_cache(v_idx)(v_word_idx)(7 downto 0) <= cpu_data(7 downto 0);
                             end if;
                             mem_write_en_o <= '1';
@@ -166,19 +163,19 @@ begin
                         s_miss_count <= s_miss_count + 1;
                         cpu_hold_o <= '1';
                         if cpu_rw = '1' then
-                            -- read miss: fetch entire line word-by-word
+                            -- read miss: buscar a linha inteira da MP
                             s_fetch_idx <= 0;
-                            -- align address to line base: zero lower TOTAL_OFFSET_BITS
+                            -- alinhar o endere�o na base da linha: zerar os TOTAL_OFFSET_BITS inferiores
                             mem_addr_o <= cpu_addr(ADDR_WIDTH-1 downto TOTAL_OFFSET_BITS) & (TOTAL_OFFSET_BITS-1 downto 0 => '0');
                             mem_read_en_o <= '1';
                             s_current_state <= FETCH;
                         else
-                            -- write miss: simple write-allocate
+                            -- write miss: fazer write-allocate
                             s_pending_write <= '1';
                             s_pending_data  <= cpu_data;
                             s_pending_addr  <= cpu_addr;
                             s_pending_bw    <= cpu_bw;
-                            -- start fetching the block from memory (line base)
+                            -- buscar na MP
                             s_fetch_idx <= 0;
                             mem_addr_o <= cpu_addr(ADDR_WIDTH-1 downto TOTAL_OFFSET_BITS) & (TOTAL_OFFSET_BITS-1 downto 0 => '0');
                             mem_read_en_o <= '1';
@@ -187,7 +184,7 @@ begin
                     end if;
 
                 when FETCH =>
-                    -- wait mem to present the next word on mem_data (mem_status='0' when ready)
+                    -- esperar pela próxima palavra (mem_status='0' quando pronto)
                     if mem_status = '0' then
                         v_idx := to_integer(unsigned(s_index));
                         s_data_cache(v_idx)(s_fetch_idx) <= mem_data;
@@ -196,13 +193,13 @@ begin
                             mem_addr_o <= std_logic_vector(unsigned(mem_addr_o) + 4);
                             mem_read_en_o <= '1';
                         else
-                            -- finished line
+                            -- acabou a linha
                             s_tag_cache(v_idx) <= s_tag;
                             s_valid_bits(v_idx) <= '1';
                             mem_read_en_o <= '0';
-                            -- if there was a pending write (write-allocate), apply it now
+                            -- fazer write-allocate pendente
                             if s_pending_write = '1' then
-                                -- update the correct word inside the fetched line
+                                -- atualizar a palavra correta dentro da linha buscada
                                 v_word_idx := to_integer(unsigned(s_word_offset));
                                 if s_pending_bw = '1' then
                                     s_data_cache(v_idx)(v_word_idx) <= s_pending_data;

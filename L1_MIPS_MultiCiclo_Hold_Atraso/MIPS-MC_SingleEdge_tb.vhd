@@ -222,7 +222,7 @@ architecture cpu_tb of cpu_tb is
     signal cache_hit_count, cache_miss_count, cache_stall_cycles: integer;
     
     
-    file ARQ : TEXT open READ_MODE is "Test_Program_Allinst_MIPS_MCS.txt";
+    file ARQ : TEXT open READ_MODE is "L1_write_through_latency.txt";
  
 begin
            
@@ -269,11 +269,10 @@ begin
     Dwe_n <= '0' when (cache_mem_write_en = '1' or go_d='1') else '1';
 
     Dadress <= tb_add  when rstCPU='1' else d_cpu_address;
-    -- Ddata is driven by loader during reset; otherwise by cache when it performs writes.
+    -- Ddata: controlado pela cache quando ela faz escrita na mem�ria de dados
     Ddata   <= tb_data when rstCPU='1' else cache_mem_data when cache_mem_write_en = '1' else (others=>'Z');
 
-    -- CPU read data comes from the cache (cache drives data_cpu on read-hits). Do not directly tie data_cpu to Ddata.
-    
+    -- CPU lê da cache quando hit 
     -- sinais para adaptar a mem�ria de instru��es ao processador ---------------------------------------------
     
 	Ice_n <= '0';                        
@@ -333,7 +332,6 @@ begin
     ------------------------------------------------------------------
     process
     begin
-        -- wait sufficiently long for the program to execute; adjust as needed
         wait for 500000 ns;
         report "=== L1 Cache statistics ===";
         report "Cache hits: " & integer'image(cache_hit_count);
